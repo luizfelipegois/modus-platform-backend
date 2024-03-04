@@ -4,10 +4,7 @@ require('dotenv').config();
 module.exports = async function databaseConnection() {
   try {
     await mongoose.set('strictQuery', true);
-    await mongoose.connect(process.env.URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.URL);
 
     console.log('Database connection successfully established');
   } catch (err) {

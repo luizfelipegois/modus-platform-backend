@@ -1,9 +1,11 @@
 const User = require('../models/auth');
 const { generateRandomId } = require('../utils/generateRandomId');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const handleServerError = (res, err) => res.status(500).json({ message: `Server error: ${err.message}`, error: true });
+const secret = process.env.SECRET;
 
 const createUserInTheDatabase = async (req, res) => {
   try {
@@ -18,12 +20,25 @@ const createUserInTheDatabase = async (req, res) => {
 
     await user.save();
 
-    return res.status(201).json({ message: 'User created successfully', error: false });
+    return res.status(201).json({ message: 'Usuário criado com sucesso', error: false });
+  } catch (err) {
+    return handleServerError(res, err);
+  }
+};
+
+const userLogin = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const { _id } = await User.findOne({ email });
+    const token = await jwt.sign({ id: _id }, secret, { expiresIn: 1800 });
+
+    return res.status(200).json({ message: 'Autenticado com sucesso', error: false, token });
   } catch (err) {
     return handleServerError(res, err);
   }
 };
 
 module.exports = {
-  createUserInTheDatabase
+  createUserInTheDatabase,
+  userLogin
 }
